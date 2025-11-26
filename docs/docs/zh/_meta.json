@@ -1,0 +1,11 @@
+[{
+  "text":"Guide",
+  "link":"/zh/guide/",
+  "activeMatch":"/guide/"
+},
+  {
+    "text": "migrate_protocol",
+    "link": "/zh/migrate_protocol/",
+    "activeMatch": "/migrate_protocol/"
+  }
+]

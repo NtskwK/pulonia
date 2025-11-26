@@ -1,0 +1,18 @@
+{
+  "gettingStarted": {
+    "en": "Getting Started",
+    "zh": "开始"
+  },
+  "migrate_protocol": {
+    "en": "Migrate Protocol",
+    "zh": "迁移协议"
+  },
+  "features": {
+    "en": "Features",
+    "zh": "特性"
+  },
+  "guide": {
+    "en": "Guide",
+    "zh": "指南"
+  }
+}
