@@ -4,10 +4,17 @@ use std::env::{
 };
 
 use chrono::Local;
+use clap::Parser;
+use tempfile::TempDir;
 use tklog::info;
 
 mod logging;
 use logging::log_init;
+
+use crate::path::check_path;
+
+mod cli;
+mod path;
 
 fn main() {
     pulonia_init();
@@ -38,7 +45,48 @@ fn pulonia_init() {
     info!("version: ", env!("CARGO_PKG_VERSION"));
     info!("----------------------------");
     info!("time: ", Local::now().format("%Y-%m-%d %H:%M:%S"));
-    info!("system: ", OS);
+    info!("os: ", OS);
     info!("arch: ", ARCH);
     info!("----------------------------");
+
+    let cli = cli::Cli::parse();
+
+    if cli.current_version_path.is_empty()
+        || cli.previous_version_path.is_empty()
+        || cli.temp_dir_path.is_none()
+        || cli.output_path.is_none()
+    {
+        eprintln!("Error: Both current and previous version paths must be provided.");
+        return;
+    }
+
+    let temp_dir = match cli.temp_dir_path {
+        Some(path) => {
+            check_path(&path).unwrap_or_else(|err| {
+                eprintln!("Invalid temporary directory path: {}", err);
+                std::process::exit(1);
+            });
+            TempDir::new_in(path).unwrap()
+        }
+        None => TempDir::new().unwrap(),
+    };
+
+    check_path(&cli.current_version_path).unwrap_or_else(|err| {
+        eprintln!("Invalid current version path: {}", err);
+        std::process::exit(1);
+    });
+
+    check_path(&cli.previous_version_path).unwrap_or_else(|err| {
+        eprintln!("Invalid previous version path: {}", err);
+        std::process::exit(1);
+    });
+
+    let format = cli.format.unwrap_or_else(|| "zip".to_string());
+    let output_path = cli.output_path.unwrap_or_else(|| "ota".to_string());
+
+    info!("Current version path: {}", cli.current_version_path);
+    info!("Previous version path: {}", cli.previous_version_path);
+    info!("Temporary directory path: {}", temp_dir.path().display());
+    info!("Output path: {}", output_path);
+    info!("Patch file format: {}", format);
 }
