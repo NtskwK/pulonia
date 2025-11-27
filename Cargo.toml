@@ -8,3 +8,11 @@ chrono = "0.4.42"
 clap = { version = "4.5.53", features = ["derive"] }
 tempfile = "3.23.0"
 tklog = "0.3.0"
+zip = { version = "0.6", features = ["deflate"] }
+tar = "0.4"
+flate2 = "1.0"
+xz2 = "0.1"
+bzip2 = "0.4"
+lz4 = "1.24"
+sevenz-rust = "0.6"
+thiserror = "2.0.17"

@@ -1,6 +1,9 @@
-use std::env::{
-    consts::{ARCH, OS},
-    current_dir,
+use std::{
+    env::{
+        consts::{ARCH, OS},
+        current_dir,
+    },
+    path::Path,
 };
 
 use chrono::Local;
@@ -11,10 +14,14 @@ use tklog::info;
 mod logging;
 use logging::log_init;
 
-use crate::path::check_path;
-
 mod cli;
+use cli::Cli;
+mod compress;
+use compress::compress;
+use compress::decompress;
+
 mod path;
+use path::check_path;
 
 fn main() {
     pulonia_init();
@@ -49,7 +56,7 @@ fn pulonia_init() {
     info!("arch: ", ARCH);
     info!("----------------------------");
 
-    let cli = cli::Cli::parse();
+    let cli = Cli::parse();
 
     if cli.after_path.is_empty()
         || cli.before_path.is_empty()
@@ -89,4 +96,9 @@ fn pulonia_init() {
     info!("Temporary directory path: {}", temp_dir.path().display());
     info!("Output path: {}", output_path);
     info!("Patch file format: {}", format);
+
+    let decompressed_after_path = Path::join(temp_dir.path(), "after_decompressed");
+    let decompressed_before_path = Path::join(temp_dir.path(), "before_decompressed");
+    decompress(&cli.after_path, decompressed_after_path.to_str().unwrap()).unwrap();
+    decompress(&cli.before_path, decompressed_before_path.to_str().unwrap()).unwrap();
 }
