@@ -38,6 +38,13 @@ pub fn check_path(path_str: &str) -> Result<(), String> {
                 return Err("Windows path cannot end with a space or dot".to_string());
             }
         }
+        if let Some(parent) = path.parent() {
+            if parent == Path::new("") || parent.as_os_str().is_empty() {
+                return Err("Cannot access root directory.".to_string());
+            }
+        } else if path.is_absolute() && path.components().count() == 1 {
+            return Err("Cannot access root directory.".to_string());
+        }
     }
     #[cfg(unix)]
     {
@@ -45,11 +52,18 @@ pub fn check_path(path_str: &str) -> Result<(), String> {
         if path_str.contains('\0') {
             return Err("Unix 路径含 NUL 字符（\\0）".to_string());
         }
+        if path == Path::new("/") {
+            return false;
+        }
     }
 
     if let Some(_) = path.canonicalize().ok() {
     } else if !path.is_absolute() && !path.is_relative() {
         return Err("Path is neither absolute nor relative".to_string());
+    }
+
+    if !is_safe_path(path_str) {
+        return Err("Path is not safe! Pulonia can only access files in the current directory or its subdirectories. But don't worry, it's was designed this way to protect your files.".to_string());
     }
 
     match fs::metadata(path) {
