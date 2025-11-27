@@ -18,19 +18,19 @@ use clap::Parser;
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
     #[arg(
-        short = 'c',
-        long = "current",
+        short = 'a',
+        long = "after",
         required = true,
         help = "Path to the new version compressed file"
     )]
-    pub current_version_path: String,
+    pub after_path: String,
     #[arg(
-        short = 'p',
-        long = "previous",
+        short = 'b',
+        long = "before",
         required = true,
         help = "Path to the previous version compressed file"
     )]
-    pub previous_version_path: String,
+    pub before_path: String,
     #[arg(
         short = 'o',
         long = "output",

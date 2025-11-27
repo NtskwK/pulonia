@@ -51,8 +51,8 @@ fn pulonia_init() {
 
     let cli = cli::Cli::parse();
 
-    if cli.current_version_path.is_empty()
-        || cli.previous_version_path.is_empty()
+    if cli.after_path.is_empty()
+        || cli.before_path.is_empty()
         || cli.temp_dir_path.is_none()
         || cli.output_path.is_none()
     {
@@ -71,12 +71,12 @@ fn pulonia_init() {
         None => TempDir::new().unwrap(),
     };
 
-    check_path(&cli.current_version_path).unwrap_or_else(|err| {
+    check_path(&cli.after_path).unwrap_or_else(|err| {
         eprintln!("Invalid current version path: {}", err);
         std::process::exit(1);
     });
 
-    check_path(&cli.previous_version_path).unwrap_or_else(|err| {
+    check_path(&cli.before_path).unwrap_or_else(|err| {
         eprintln!("Invalid previous version path: {}", err);
         std::process::exit(1);
     });
@@ -84,8 +84,8 @@ fn pulonia_init() {
     let format = cli.format.unwrap_or_else(|| "zip".to_string());
     let output_path = cli.output_path.unwrap_or_else(|| "ota".to_string());
 
-    info!("Current version path: {}", cli.current_version_path);
-    info!("Previous version path: {}", cli.previous_version_path);
+    info!("after path: {}", cli.after_path);
+    info!("before path: {}", cli.before_path);
     info!("Temporary directory path: {}", temp_dir.path().display());
     info!("Output path: {}", output_path);
     info!("Patch file format: {}", format);
