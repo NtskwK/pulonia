@@ -28,7 +28,7 @@ pub fn check_path(path_str: &str) -> Result<(), String> {
     let path = Path::new(os_path);
     #[cfg(windows)]
     {
-        let illegal_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*'];
+        let illegal_chars = ['<', '>', '"', '|', '?', '*'];
         if path_str.chars().any(|c| illegal_chars.contains(&c)) {
             return Err("Windows path contains illegal characters".to_string());
         }
@@ -73,9 +73,7 @@ pub fn check_path(path_str: &str) -> Result<(), String> {
 }
 
 pub fn is_safe_path(path: &str) -> bool {
-    let forbidden_patterns = [
-        "..", "~", "//", "\\", "%", "$", "{", "}", "<", ">", "|", "\"",
-    ];
+    let forbidden_patterns = ["..", "~", "%", "$", "{", "}", "<", ">", "|", "\""];
     for pattern in forbidden_patterns.iter() {
         if path.contains(pattern) {
             return false;
@@ -83,8 +81,24 @@ pub fn is_safe_path(path: &str) -> bool {
     }
 
     let self_dir = env::current_dir().unwrap();
-    let path = PathBuf::from(path);
-    if !path.starts_with(&self_dir) {
+    let path_buf = PathBuf::from(path);
+    let abs_path = if path_buf.is_absolute() {
+        path_buf
+    } else {
+        self_dir.join(path_buf)
+    };
+
+    let canonical_path = match abs_path.canonicalize() {
+        Ok(p) => p,
+        Err(_) => return false,
+    };
+
+    let canonical_self = match self_dir.canonicalize() {
+        Ok(p) => p,
+        Err(_) => return false,
+    };
+
+    if !canonical_path.starts_with(&canonical_self) {
         return false;
     }
 

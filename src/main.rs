@@ -9,7 +9,7 @@ use std::{
 use chrono::Local;
 use clap::Parser;
 use tempfile::TempDir;
-use tklog::info;
+use tklog::{error, info, warn};
 
 mod logging;
 use logging::log_init;
@@ -20,8 +20,12 @@ mod compress;
 use compress::compress;
 use compress::decompress;
 
+mod diff;
 mod path;
+
 use path::check_path;
+
+use crate::diff::get_hash;
 
 fn main() {
     pulonia_init();
@@ -58,11 +62,7 @@ fn pulonia_init() {
 
     let cli = Cli::parse();
 
-    if cli.after_path.is_empty()
-        || cli.before_path.is_empty()
-        || cli.temp_dir_path.is_none()
-        || cli.output_path.is_none()
-    {
+    if cli.after_path.is_empty() || cli.before_path.is_empty() {
         eprintln!("Error: Both current and previous version paths must be provided.");
         return;
     }
@@ -70,7 +70,7 @@ fn pulonia_init() {
     let temp_dir = match cli.temp_dir_path {
         Some(path) => {
             check_path(&path).unwrap_or_else(|err| {
-                eprintln!("Invalid temporary directory path: {}", err);
+                error!("Invalid temporary directory path:", err);
                 std::process::exit(1);
             });
             TempDir::new_in(path).unwrap()
@@ -79,26 +79,40 @@ fn pulonia_init() {
     };
 
     check_path(&cli.after_path).unwrap_or_else(|err| {
-        eprintln!("Invalid current version path: {}", err);
+        error!("Invalid current version path:", err);
         std::process::exit(1);
     });
 
     check_path(&cli.before_path).unwrap_or_else(|err| {
-        eprintln!("Invalid previous version path: {}", err);
+        error!("Invalid previous version path:", err);
         std::process::exit(1);
     });
 
     let format = cli.format.unwrap_or_else(|| "zip".to_string());
     let output_path = cli.output_path.unwrap_or_else(|| "ota".to_string());
 
-    info!("after path: {}", cli.after_path);
-    info!("before path: {}", cli.before_path);
-    info!("Temporary directory path: {}", temp_dir.path().display());
-    info!("Output path: {}", output_path);
-    info!("Patch file format: {}", format);
+    info!("after path:", cli.after_path);
+    info!("before path:", cli.before_path);
+    info!("Temporary directory path:", temp_dir.path().display());
+    info!("Output path:", output_path);
+    info!("Patch file format:", format);
 
     let decompressed_after_path = Path::join(temp_dir.path(), "after_decompressed");
     let decompressed_before_path = Path::join(temp_dir.path(), "before_decompressed");
     decompress(&cli.after_path, decompressed_after_path.to_str().unwrap()).unwrap();
     decompress(&cli.before_path, decompressed_before_path.to_str().unwrap()).unwrap();
+
+    let before_hash = get_hash(decompressed_before_path);
+    let after_hash = get_hash(decompressed_after_path);
+
+    let before_inner = before_hash.as_object().unwrap().values().next().unwrap();
+    let after_inner = after_hash.as_object().unwrap().values().next().unwrap();
+
+    if before_inner == after_inner {
+        info!("The two files are identical.");
+        return;
+    }
+    warn!("The hash of the two files is different.");
+    warn!("before hash:", before_inner);
+    warn!("after hash:", after_inner);
 }
