@@ -2,36 +2,33 @@
 pageType: home
 
 hero:
-  name: pulonia
-  text: A opensource updater for software
-  tagline: This is the tagline
+  name: Pulonia
+  text: 软件更新补丁生成工具
+  tagline: 一个用于比较两个压缩文件并生成更新补丁的开源程序
   actions:
     - theme: brand
-      text: 
+      text: 快速开始
       link: zh/guide/
     - theme: alt
       text: GitHub
-      link: https://github.com/web-infra-dev/rspress
-  image:
-    src: /rspress-icon.png
-    alt: Logo
+      link: https://github.com/NtskwK/pulonia
 features:
-  - title: Blazing fast build speed
-    details: The core compilation module is based on the Rust front-end toolchain, providing a more ultimate development experience.
-    icon: 🏃🏻‍♀️
-  - title: Support for MDX content writing
-    details: MDX is a powerful way to write content, allowing you to use React components in Markdown.
+  - title: 多格式压缩文件支持
+    details: 支持 ZIP、TAR、GZIP、XZ、BZIP2、LZ4、7Z 等多种常见压缩格式的解压和比对。
     icon: 📦
-  - title: Built-in full-text search
-    details: Automatically generates a full-text search index for you during construction, providing out-of-the-box full-text search capabilities.
-    icon: 🎨
-  - title: Simpler I18n solution
-    details: With the built-in I18n solution, you can easily provide multi-language support for documents or components.
-    icon: 🌍
-  - title: Static site generation
-    details: In production, it automatically builds into static HTML files, which can be easily deployed anywhere.
-    icon: 🌈
-  - title: Providing multiple custom capabilities
-    details: Through its extension mechanism, you can easily extend theme UI and build process.
-    icon: 🔥
+  - title: 高性能 Rust 实现
+    details: 基于 Rust 编写，提供极高的性能和内存安全保证，适合处理大型压缩文件。
+    icon: 🚀
+  - title: 智能文件差异检测
+    details: 使用 SHA-256 哈希算法精确识别文件变化，自动区分新增、修改和删除的文件。
+    icon: 🔍
+  - title: 结构化迁移报告
+    details: 生成符合迁移协议 v1 标准的 JSON 报告，清晰记录所有文件变更信息。
+    icon: 📋
+  - title: 灵活的命令行接口
+    details: 提供简洁直观的 CLI 工具，支持自定义输出路径和临时目录等配置选项。
+    icon: ⚙️
+  - title: 完善的日志系统
+    details: 内置详细的日志记录功能，方便追踪补丁生成过程中的每一步操作。
+    icon: 📜
 ---

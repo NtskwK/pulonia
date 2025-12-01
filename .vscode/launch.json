@@ -11,7 +11,14 @@
             "cargo": {
                 "args": [
                     "run",
-                    "--bin=pulonia"
+                    "--bin=pulonia",
+                    "--",
+                    "--after",
+                    "./test_diff.zip",
+                    "--before",
+                    "./pulonia.zip",
+                    "--format",
+                    "gz"
                 ]
             },
             "args": []

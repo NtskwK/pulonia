@@ -2,36 +2,33 @@
 pageType: home
 
 hero:
-  name: pulonia
-  text: A opensource updater for software
-  tagline: This is the tagline
+  name: Pulonia
+  text: Software Update Patch Generator
+  tagline: An open-source program for comparing two compressed files and generating update patches
   actions:
     - theme: brand
       text: Quick Start
       link: /guide/
     - theme: alt
       text: GitHub
-      link: https://github.com/web-infra-dev/rspress
-  image:
-    src: /rspress-icon.png
-    alt: Logo
+      link: https://github.com/NtskwK/pulonia
 features:
-  - title: Blazing fast build speed
-    details: The core compilation module is based on the Rust front-end toolchain, providing a more ultimate development experience.
-    icon: 🏃🏻‍♀️
-  - title: Support for MDX content writing
-    details: MDX is a powerful way to write content, allowing you to use React components in Markdown.
+  - title: Multi-format Archive Support
+    details: Supports decompression and comparison of ZIP, TAR, GZIP, XZ, BZIP2, LZ4, 7Z, and other common formats.
     icon: 📦
-  - title: Built-in full-text search
-    details: Automatically generates a full-text search index for you during construction, providing out-of-the-box full-text search capabilities.
-    icon: 🎨
-  - title: Simpler I18n solution
-    details: With the built-in I18n solution, you can easily provide multi-language support for documents or components.
-    icon: 🌍
-  - title: Static site generation
-    details: In production, it automatically builds into static HTML files, which can be easily deployed anywhere.
-    icon: 🌈
-  - title: Providing multiple custom capabilities
-    details: Through its extension mechanism, you can easily extend theme UI and build process.
-    icon: 🔥
+  - title: High-Performance Rust Implementation
+    details: Written in Rust, providing high performance and memory safety, suitable for processing large compressed files.
+    icon: 🚀
+  - title: Smart File Difference Detection
+    details: Uses SHA-256 hashing to precisely identify file changes, automatically distinguishing between added, modified, and deleted files.
+    icon: 🔍
+  - title: Structured Migration Report
+    details: Generates JSON reports conforming to Migration Protocol v1, clearly recording all file change information.
+    icon: 📋
+  - title: Flexible CLI
+    details: Provides a simple and intuitive CLI tool with support for custom output paths and temporary directories.
+    icon: ⚙️
+  - title: Comprehensive Logging System
+    details: Built-in detailed logging functionality to easily track every step of the patch generation process.
+    icon: 📜
 ---
