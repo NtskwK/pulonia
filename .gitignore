@@ -1,1 +1,6 @@
-/target
+target
+*.7z
+*.zip
+*.json
+.idea/
+.vscode/launch.json

@@ -17,15 +17,16 @@ use logging::log_init;
 mod cli;
 use cli::Cli;
 mod compress;
-use compress::compress;
 use compress::decompress;
 
 mod diff;
+mod migration;
 mod path;
 
 use path::check_path;
 
 use crate::diff::get_hash;
+use crate::migration::generate_migration;
 
 fn main() {
     pulonia_init();
@@ -115,4 +116,19 @@ fn pulonia_init() {
     warn!("The hash of the two files is different.");
     warn!("before hash:", before_inner);
     warn!("after hash:", after_inner);
+
+    // 生成迁移文件
+    let changes = generate_migration(before_inner, after_inner);
+
+    // 保存迁移报告到文件
+    let migration_file_path = format!("migration_{}.json", Local::now().format("%y%m%d_%H%M"));
+    let json_string = serde_json::to_string_pretty(&changes).unwrap();
+    match std::fs::write(&migration_file_path, json_string) {
+        Ok(_) => {
+            info!("Migration report saved to:", migration_file_path);
+        }
+        Err(e) => {
+            error!("Failed to save migration report:", e);
+        }
+    }
 }
