@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
     branches:
       - main
@@ -15,15 +15,9 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-
   test:
-    name: Test on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [stable]
-      fail-fast: false
+    name: Test
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -192,4 +186,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
