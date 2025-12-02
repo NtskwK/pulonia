@@ -171,4 +171,3 @@ fn test_file_permissions_preservation() {
         assert!(mode & 0o400 != 0);
     }
 }
-
