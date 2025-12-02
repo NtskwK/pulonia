@@ -41,7 +41,6 @@ fn get_file_type(path: &Path) -> Option<String> {
 
 pub fn decompress(input_path: &str, output_path: &str) -> Result<(), DecompressError> {
     let input_path_obj = Path::new(input_path);
-    let output_path_obj = Path::new(output_path);
 
     let file_type = get_file_type(input_path_obj)
         .ok_or_else(|| DecompressError::UnsupportedFormat("No file extension found".to_string()))?;

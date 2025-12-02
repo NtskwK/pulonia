@@ -40,6 +40,26 @@ pub fn generate_migration(before_inner: &Value, after_inner: &Value) -> Value {
     })
 }
 
+/// 获取更新的文件列表（新增或修改）
+pub fn get_updated_files(before_inner: &Value, after_inner: &Value) -> Vec<String> {
+    let before_files = flatten_to_map(before_inner, String::new());
+    let after_files = flatten_to_map(after_inner, String::new());
+    let mut updated_files = Vec::new();
+
+    for (path, new_hash) in &after_files {
+        match before_files.get(path) {
+            Some(old_hash) if old_hash != new_hash => {
+                updated_files.push(path.clone());
+            }
+            None => {
+                updated_files.push(path.clone());
+            }
+            _ => {}
+        }
+    }
+    updated_files
+}
+
 /// 将路径添加到更新树中
 fn add_to_update_tree(tree: &mut Value, path: &str, hash: &str) {
     let parts: Vec<&str> = path.split('/').collect();
