@@ -53,7 +53,7 @@ pub fn check_path(path_str: &str) -> Result<(), String> {
             return Err("Unix 路径含 NUL 字符（\\0）".to_string());
         }
         if path == Path::new("/") {
-            return false;
+            return Err("Cannot access root directory.".to_string());
         }
     }
 
