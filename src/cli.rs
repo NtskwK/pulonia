@@ -45,6 +45,7 @@ pub struct Cli {
     )]
     pub temp_dir_path: Option<String>,
     #[arg(
+        short = 'f',
         long = "format",
         required = false,
         help = "Patch file format (e.g., bsdiff, zstd)"
