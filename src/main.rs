@@ -1,18 +1,11 @@
 use std::{
-    env::{
-        consts::{ARCH, OS},
-        current_dir,
-    },
+    env::consts::{ARCH, OS},
     path::Path,
 };
 
 use chrono::Local;
 use clap::Parser;
 use tempfile::TempDir;
-use tklog::{error, info, warn};
-
-mod logging;
-use logging::log_init;
 
 mod cli;
 use cli::Cli;
@@ -33,33 +26,14 @@ fn main() {
 }
 
 fn pulonia_init() {
-    const LOG_DIR_NAME: &str = "updater_logs";
-
-    let work_dir = current_dir().unwrap();
-    let log_dir = work_dir.join(LOG_DIR_NAME);
-    let log_file_available = match std::fs::create_dir_all(&log_dir) {
-        Ok(_) => true,
-        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => true,
-        Err(e) => {
-            eprintln!("Failed to create log directory: {}", e);
-            false
-        }
-    };
-
-    if log_file_available {
-        log_init(Some(&log_dir));
-    } else {
-        log_init(None);
-    }
-
-    info!("----------------------------");
-    info!("Pulonia started");
-    info!("version: ", env!("CARGO_PKG_VERSION"));
-    info!("----------------------------");
-    info!("time: ", Local::now().format("%Y-%m-%d %H:%M:%S"));
-    info!("os: ", OS);
-    info!("arch: ", ARCH);
-    info!("----------------------------");
+    println!("{}", "-".repeat(60));
+    println!("Pulonia started");
+    println!("version: {}", env!("CARGO_PKG_VERSION"));
+    println!("{}", "-".repeat(60));
+    println!("time: {}", Local::now().format("%Y-%m-%d %H:%M:%S"));
+    println!("os: {}", OS);
+    println!("arch: {}", ARCH);
+    println!("{}", "-".repeat(60));
 
     let cli = Cli::parse();
 
@@ -71,7 +45,7 @@ fn pulonia_init() {
     let temp_dir = match cli.temp_dir_path {
         Some(path) => {
             check_path(&path).unwrap_or_else(|err| {
-                error!("Invalid temporary directory path:", err);
+                eprintln!("Invalid temporary directory path: {}", err);
                 std::process::exit(1);
             });
             TempDir::new_in(path).unwrap()
@@ -80,12 +54,12 @@ fn pulonia_init() {
     };
 
     check_path(&cli.after_path).unwrap_or_else(|err| {
-        error!("Invalid current version path:", err);
+        eprintln!("Invalid current version path: {}", err);
         std::process::exit(1);
     });
 
     check_path(&cli.before_path).unwrap_or_else(|err| {
-        error!("Invalid previous version path:", err);
+        eprintln!("Invalid previous version path: {}", err);
         std::process::exit(1);
     });
 
@@ -129,11 +103,13 @@ fn pulonia_init() {
         output_path
     };
 
-    info!("after path:", cli.after_path);
-    info!("before path:", cli.before_path);
-    info!("Temporary directory path:", temp_dir.path().display());
-    info!("Output path:", output_path);
-    info!("Patch file format:", format);
+    println!("after path: {}", cli.after_path);
+    println!("before path: {}", cli.before_path);
+    println!("Temporary directory: {}", temp_dir.path().display());
+    println!("Output path: {}", output_path);
+    println!("Patch format: {}", format);
+
+    println!("{}", "-".repeat(60));
 
     let decompressed_after_path = Path::join(temp_dir.path(), "after_decompressed");
     let decompressed_before_path = Path::join(temp_dir.path(), "before_decompressed");
@@ -147,12 +123,14 @@ fn pulonia_init() {
     let after_inner = after_hash.as_object().unwrap().values().next().unwrap();
 
     if before_inner == after_inner {
-        info!("The two files are identical.");
+        println!("The two files are identical.");
         return;
     }
-    warn!("The hash of the two files is different.");
-    warn!("before hash:", before_inner);
-    warn!("after hash:", after_inner);
+    eprintln!("The hash of the two files is different.");
+    eprintln!("before hash: {}", before_inner);
+    eprintln!("after hash: {}", after_inner);
+
+    println!("{}", "-".repeat(60));
 
     // 生成迁移记录文件
     let changes = generate_migration(before_inner, after_inner);
@@ -162,10 +140,10 @@ fn pulonia_init() {
     let json_string = serde_json::to_string_pretty(&changes).unwrap();
     match std::fs::write(&migration_file_path, json_string) {
         Ok(_) => {
-            info!("Migration report saved to:", migration_file_path);
+            println!("Migration report saved to: {}", migration_file_path);
         }
         Err(e) => {
-            error!("Failed to save migration report:", e);
+            eprintln!("Failed to save migration report: {}", e);
         }
     }
 
@@ -174,7 +152,7 @@ fn pulonia_init() {
     if !updated_files.is_empty() {
         let patch_temp_dir = temp_dir.path().join("patch_temp");
         if let Err(e) = std::fs::create_dir_all(&patch_temp_dir) {
-            error!("Failed to create patch temp directory:", e);
+            eprintln!("Failed to create patch temp directory: {}", e);
             return;
         }
 
@@ -184,16 +162,15 @@ fn pulonia_init() {
 
             if let Some(parent) = dest_path.parent() {
                 if let Err(e) = std::fs::create_dir_all(parent) {
-                    error!("Failed to create directory:", parent.display(), e);
+                    eprintln!("Failed to create directory: {} - {}", parent.display(), e);
                     continue;
                 }
             }
 
             if let Err(e) = std::fs::copy(&src_path, &dest_path) {
-                error!(
-                    "Failed to copy file:",
+                eprintln!(
+                    "Failed to copy file: {} to {} - {}",
                     src_path.display(),
-                    "to",
                     dest_path.display(),
                     e
                 );
@@ -202,13 +179,13 @@ fn pulonia_init() {
 
         match compress::compress(patch_temp_dir.to_str().unwrap(), &output_path, &format) {
             Ok(_) => {
-                info!("Patch file created successfully at:", output_path);
+                println!("Patch file created successfully at: {}", output_path);
             }
             Err(e) => {
-                error!("Failed to create patch file:", e);
+                eprintln!("Failed to create patch file: {}", e);
             }
         }
     } else {
-        info!("No files updated, skipping patch generation.");
+        println!("No files updated, skipping patch generation.");
     }
 }

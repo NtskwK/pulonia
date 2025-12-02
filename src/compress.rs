@@ -10,8 +10,6 @@ pub enum DecompressError {
     UnsupportedFormat(String),
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
-    #[error("Decompression failed: {0}")]
-    DecompressionFailed(String),
     #[error("Zip archive error: {0}")]
     Zip(#[from] zip::result::ZipError),
     #[error("7z error: {0}")]

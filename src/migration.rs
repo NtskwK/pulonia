@@ -108,21 +108,23 @@ fn add_to_tree_recursive(node: &mut Value, parts: &[&str], hash: &str, index: us
 }
 
 /// 将嵌套的 JSON 结构展平为路径 -> 哈希的映射
+/// 只返回文件节点（叶子节点），不返回目录节点
 fn flatten_to_map(value: &Value, current_path: String) -> HashMap<String, String> {
     let mut result = HashMap::new();
 
     if let Some(obj) = value.as_object() {
-        if let Some(hash_val) = obj.get("hash") {
-            if let Some(hash) = hash_val.as_str() {
-                // 这是一个有哈希值的节点
-                if !current_path.is_empty() {
-                    result.insert(current_path.clone(), hash.to_string());
-                }
+        let has_hash = obj.get("hash").and_then(|v| v.as_str()).is_some();
+        let has_children = obj.get("child").is_some();
+
+        // 只有当节点有 hash 但没有 child 时，才认为它是文件
+        if has_hash && !has_children && !current_path.is_empty() {
+            if let Some(hash) = obj.get("hash").and_then(|v| v.as_str()) {
+                result.insert(current_path.clone(), hash.to_string());
             }
         }
 
+        // 递归处理子节点
         if let Some(children) = obj.get("child").and_then(|v| v.as_array()) {
-            // 这是一个有子节点的目录
             for child in children {
                 if let Some(child_obj) = child.as_object() {
                     for (name, child_value) in child_obj {
