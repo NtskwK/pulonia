@@ -160,12 +160,11 @@ fn pulonia_init() {
             let src_path = decompressed_after_path.join(&file_path);
             let dest_path = patch_temp_dir.join(&file_path);
 
-            if let Some(parent) = dest_path.parent() {
-                if let Err(e) = std::fs::create_dir_all(parent) {
+            if let Some(parent) = dest_path.parent()
+                && let Err(e) = std::fs::create_dir_all(parent) {
                     eprintln!("Failed to create directory: {} - {}", parent.display(), e);
                     continue;
                 }
-            }
 
             if let Err(e) = std::fs::copy(&src_path, &dest_path) {
                 eprintln!(

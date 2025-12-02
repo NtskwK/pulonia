@@ -117,11 +117,10 @@ fn flatten_to_map(value: &Value, current_path: String) -> HashMap<String, String
         let has_children = obj.get("child").is_some();
 
         // 只有当节点有 hash 但没有 child 时，才认为它是文件
-        if has_hash && !has_children && !current_path.is_empty() {
-            if let Some(hash) = obj.get("hash").and_then(|v| v.as_str()) {
+        if has_hash && !has_children && !current_path.is_empty()
+            && let Some(hash) = obj.get("hash").and_then(|v| v.as_str()) {
                 result.insert(current_path.clone(), hash.to_string());
             }
-        }
 
         // 递归处理子节点
         if let Some(children) = obj.get("child").and_then(|v| v.as_array()) {

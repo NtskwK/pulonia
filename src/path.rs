@@ -33,11 +33,10 @@ pub fn check_path(path_str: &str) -> Result<(), String> {
             return Err("Windows path contains illegal characters".to_string());
         }
         let trimmed = path_str.trim_end();
-        if trimmed.ends_with('.') || trimmed.ends_with(' ') {
-            if !path.is_absolute() || trimmed != path_str {
+        if (trimmed.ends_with('.') || trimmed.ends_with(' '))
+            && (!path.is_absolute() || trimmed != path_str) {
                 return Err("Windows path cannot end with a space or dot".to_string());
             }
-        }
         if let Some(parent) = path.parent() {
             if parent == Path::new("") || parent.as_os_str().is_empty() {
                 return Err("Cannot access root directory.".to_string());
@@ -57,7 +56,7 @@ pub fn check_path(path_str: &str) -> Result<(), String> {
         }
     }
 
-    if let Some(_) = path.canonicalize().ok() {
+    if path.canonicalize().is_ok() {
     } else if !path.is_absolute() && !path.is_relative() {
         return Err("Path is neither absolute nor relative".to_string());
     }
