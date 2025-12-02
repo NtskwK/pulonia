@@ -4,6 +4,8 @@ use std::path::Path;
 use thiserror::Error;
 use zip::write::FileOptions;
 
+use crate::path::is_safe_path;
+
 #[derive(Debug, Error)]
 pub enum DecompressError {
     #[error("Unsupported compression format: {0}")]
@@ -14,6 +16,8 @@ pub enum DecompressError {
     Zip(#[from] zip::result::ZipError),
     #[error("7z error: {0}")]
     SevenZ(#[from] sevenz_rust::Error),
+    #[error("Unsafe output path: {0}")]
+    UnsafeOutputPath(String),
 }
 
 fn get_file_type(path: &Path) -> Option<String> {
@@ -132,6 +136,13 @@ fn add_directory_to_zip<W: Write + Seek>(
 }
 
 pub fn compress(input_path: &str, output_path: &str, format: &str) -> Result<(), DecompressError> {
+    // Check if output path is safe
+    if !is_safe_path(output_path) {
+        return Err(DecompressError::UnsafeOutputPath(
+            "Output path is not safe! Pulonia can only write files in the current directory or its subdirectories.".to_string()
+        ));
+    }
+
     match format {
         "7z" => {
             sevenz_rust::compress_to_path(input_path, output_path)?;

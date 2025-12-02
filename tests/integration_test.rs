@@ -1,7 +1,6 @@
 use predicates::prelude::*;
 use std::fs::{self, File};
 use std::path::Path;
-use tempfile::TempDir;
 use zip::write::FileOptions;
 
 fn create_zip(src_dir: &Path, dst_file: &Path) -> std::io::Result<()> {
@@ -40,8 +39,14 @@ fn create_zip(src_dir: &Path, dst_file: &Path) -> std::io::Result<()> {
 
 #[test]
 fn test_generate_migration_report() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let root = temp_dir.path();
+    // Create temp directory in current directory to pass path safety check
+    let current_dir = std::env::current_dir()?;
+    let test_temp_dir = current_dir.join(".test_temp");
+    if test_temp_dir.exists() {
+        fs::remove_dir_all(&test_temp_dir)?;
+    }
+    fs::create_dir(&test_temp_dir)?;
+    let root = &test_temp_dir;
 
     // Create "before" directory
     let before_dir = root.join("before");
@@ -110,6 +115,9 @@ fn test_generate_migration_report() -> Result<(), Box<dyn std::error::Error>> {
 
     // Clean up migration file
     fs::remove_file(migration_file)?;
+
+    // Clean up test temp directory
+    fs::remove_dir_all(&test_temp_dir)?;
 
     Ok(())
 }
